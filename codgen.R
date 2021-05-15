@@ -1,5 +1,19 @@
 codgen <- function(DNA = c("A", "T", "G", "C")){
   
+  # Mayo de 2021
+  # Creado por Melissa Bedoya, Yesica Montoya y David Quiroz
+  
+  # DESCRIPCION:
+  # Esta función tiene como objetivo realizar automáticamente todos estos procesos,
+  # partiendo de una secuencia de bases nitrogenadas de DNA, transformándola en RNA
+  # y en la cadena de aminoácidos correspondiente.
+  
+  # ARGUMENTO:
+  # DNA: debe ser un vector de longitud igual a 3 o múltiplo de 3, que contenga las
+  # letras 'A', 'T', 'C' o 'G', en cualquier orden y sin importar la cantidad de
+  # repeticiones.
+  
+  
   # CODIGO:
   n <- length(DNA)
   RNA <- rep(NA, n)
@@ -111,4 +125,9 @@ codgen <- function(DNA = c("A", "T", "G", "C")){
   
   # Impresion de resultados:
   data.frame(DNA = DNA2, RNA = RNA_final, aa)
+  
+  # Ejemplo:
+  # Definimos un vector compuesto por letras mayusculas correspondientes a las bases nitrogenadas del ADN y usamos el comando sobre este vector:
+  # x <- c("T", "A", "G", "C", "C", "G", "A", "A", "T")
+  # codgen(x)
 }
