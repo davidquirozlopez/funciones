@@ -1,0 +1,258 @@
+---
+title: "<span style='color:darkblue; font-size:100%; font-weight:600'>Transcripción y traducción - Desde DNA hasta proteínas</span>"
+author: "Melissa Bedoya, Yésica Montoya, David Quiroz"
+date: "Curso de Programación  |  Programa de Biología  |  Mayo de 2021"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    theme: default
+    highlight: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.align = 'center', message = FALSE, comment = "#>")
+```
+
+```{r, include = F}
+# Aproveche este chunk para cargar su funcion usando 'source'. Este
+# chunk no se vera.
+library(knitr)
+library(kableExtra)
+library(tidyverse)
+```
+
+
+## Introducción
+
+La reproducción de los organismos es el principal mecanismo de perpetuación de las especies en nuestro planeta. En los eucariotas, el eje central del mecanismo reproductivo gira alrededor de los procesos de transcripción y traducción del material genético, con una serie de pasos que comienza en el <span style='color:red; font-size:110%; font-weight:600'>DNA</span>, pasa por el <span style='color:blue; font-size:110%; font-weight:600'>RNA</span> y llega finalmente a cadenas extensas de <span style='color:green; font-size:110%; font-weight:600'>aminoácidos</span> que conforman las proteínas.
+
+La correspondencia entre las bases nitrogenadas del <span style='color:red; font-size:110%; font-weight:600'>DNA</span> y las bases nitrogenadas del <span style='color:blue; font-size:110%; font-weight:600'>RNA</span> está determinada por la siguiente tabla:
+
+```{r, echo = F}
+BN <- data.frame(DNA = c('A', 'T', 'G', 'C'), RNA = c('U', 'A', 'C', 'G'))
+kable(BN) %>%
+  kable_styling(full_width = F, )
+```
+
+La correspondencia entre las bases nitrogenadas del <span style='color:blue; font-size:110%; font-weight:600'>RNA</span> y los <span style='color:green; font-size:110%; font-weight:600'>aminoácidos</span> está determinada por la siguiente tabla:
+
+```{r, echo = F}
+amin <- data.frame(RNA = c("UUU", "UUC", "UUA", "UUG", "CUU",
+  "CUC", "CUA", "CUG", "AUU", "AUC", "AUA", "AUG", "GUU", "GUC",
+  "GUA", "GUG"), aa = c("Phe", "Phe", "Leu", "Leu", "Leu", "Leu",
+  "Leu", "Leu", "Ile", "Ile", "Ile", "Met", "Val", "Val", "Val", "Val"),
+  RNA = c("UCU", "UCC", "UCA", "UCG", "CCU", "CCC", "CCA", "CCG", "ACU",
+  "ACC", "ACA", "ACG", "GCU", "GCC", "GCA", "GCG"), aa = c("Ser", "Ser",
+  "Ser", "Ser", "Pro", "Pro", "Pro", "Pro", "Thr", "Thr", "Thr", "Thr",
+  "Ala", "Ala", "Ala", "Ala"), RNA = c("UAU", "UAC", "UAA", "UAG", "CAU",
+  "CAC", "CAA", "CAG", "AAU", "AAC", "AAA", "AAG", "GAU", "GAC", "GAA",
+  "GAG"), aa = c("Tyr", "Tyr", "STOP", "STOP", "His", "His", "Gln", "Gln",
+  "Asn", "Asn", "Lys", "Lys", "Asp", "Asp", "Glu", "Glu"), RNA = c("UGU",
+  "UGC", "UGA", "UGG", "CGU", "CGC", "CGA", "CGG", "AGU", "AGC", "AGA",
+  "AGG", "GGU", "GGC", "GGA", "GGG"), aa = c("Cys", "Cys", "STOP", "Trp",
+  "Arg", "Arg", "Arg", "Arg", "Ser", "Ser", "Arg", "Arg", "Gly", "Gly",
+  "Gly", "Gly"))
+kable(amin) %>%
+  kable_styling(full_width = T, )
+
+```
+
+
+Esta función tiene como objetivo realizar automáticamente todos estos procesos, partiendo de una secuencia de bases nitrogenadas de <span style='color:red; font-size:110%; font-weight:600'>DNA</span>, transformándola en <span style='color:blue; font-size:110%; font-weight:600'>RNA</span> y en la cadena de <span style='color:green; font-size:110%; font-weight:600'>aminoácidos</span> correspondiente.
+
+Para su correcto funcionamiento, debe introducirse un vector de clase 'character' que contenga únicamente las letras mayúsculas "A", "T", "G" o "C", sin importar sus combinaciones o repeticiones.
+
+
+## Código de la función
+
+```{r, echo=TRUE}
+codgen <- function(DNA = c("A", "T", "G", "C")){
+  
+  # CODIGO:
+  n <- length(DNA)
+  RNA <- rep(NA, n)
+  
+  # Validacion del argumento DNA:
+  prueba <- c("A", "T", "G", "C")
+  h <- is.element(el = DNA, set = prueba)
+  f <- sum( h ) 
+  if(f < n) {
+  i <- which(!h)
+  mensaje <- paste0(
+    "Las posiciones ", paste0(i, collapse = ", "),
+    " del vector de entrada\ncontienen elementos diferentes de: ",
+    paste0(prueba, collapse = ", ")
+  )
+  stop(mensaje) 
+}
+
+  
+  mensaje2 <- "El argumento 'DNA' debe ser un vector\nde longitud igual a 3 o multiplos de 3"
+  check <- function(x) x == round(x)
+  a <- length(DNA)/3
+  if(check(a) == F) stop(mensaje2)
+  
+  
+  # Ciclo para transcribir el DNA al RNA:
+  for(i in 1:n){
+  RNA[i] <- if(DNA[i] == "A"){
+    "U"
+  } else{
+    if(DNA[i] == "T"){
+      "A"
+    } else{
+      if(DNA[i] == "G"){
+        "C"
+      } else{
+        if(DNA[i] == "C"){
+          "G"
+         }
+        }
+      }
+    }
+  }
+  
+  # Organizacion del RNA en tripletas:
+  RNAm <- matrix(data = RNA, ncol = 3, byrow = TRUE)
+  RNA_final <- matrix(data = NA, ncol = 1, nrow = nrow(RNAm))
+  k <- nrow(RNAm)
+  for(i in 1:k) RNA_final[i,] <- paste0(RNAm[i,], collapse = "")
+  
+  # Traduccion de RNA a aminoacidos:
+  aa <- c(RNA_final[ ,1])
+  
+  aa <- sub(pattern = "UUU", replacement = "Phe", x = aa)
+  aa <- sub(pattern = "UUC", replacement = "Phe", x = aa)
+  aa <- sub(pattern = "UUA", replacement = "Leu", x = aa)
+  aa <- sub(pattern = "UUG", replacement = "Leu", x = aa)
+  aa <- sub(pattern = "CUU", replacement = "Leu", x = aa)
+  aa <- sub(pattern = "CUC", replacement = "Leu", x = aa)
+  aa <- sub(pattern = "CUA", replacement = "Leu", x = aa)
+  aa <- sub(pattern = "CUG", replacement = "Leu", x = aa)
+  aa <- sub(pattern = "AUU", replacement = "Ile", x = aa)
+  aa <- sub(pattern = "AUC", replacement = "Ile", x = aa)
+  aa <- sub(pattern = "AUA", replacement = "Ile", x = aa)
+  aa <- sub(pattern = "AUG", replacement = "Met", x = aa)
+  aa <- sub(pattern = "GUU", replacement = "Val", x = aa)
+  aa <- sub(pattern = "GUC", replacement = "Val", x = aa)
+  aa <- sub(pattern = "GUA", replacement = "Val", x = aa)
+  aa <- sub(pattern = "GUG", replacement = "Val", x = aa)
+  aa <- sub(pattern = "UCU", replacement = "Ser", x = aa)
+  aa <- sub(pattern = "UCC", replacement = "Ser", x = aa)
+  aa <- sub(pattern = "UCA", replacement = "Ser", x = aa)
+  aa <- sub(pattern = "UCG", replacement = "Ser", x = aa)
+  aa <- sub(pattern = "CCU", replacement = "Pro", x = aa)
+  aa <- sub(pattern = "CCC", replacement = "Pro", x = aa)
+  aa <- sub(pattern = "CCA", replacement = "Pro", x = aa)
+  aa <- sub(pattern = "CCG", replacement = "Pro", x = aa)
+  aa <- sub(pattern = "ACU", replacement = "Thr", x = aa)
+  aa <- sub(pattern = "ACC", replacement = "Thr", x = aa)
+  aa <- sub(pattern = "ACA", replacement = "Thr", x = aa)
+  aa <- sub(pattern = "ACG", replacement = "Thr", x = aa)
+  aa <- sub(pattern = "GCU", replacement = "Ala", x = aa)
+  aa <- sub(pattern = "GCC", replacement = "Ala", x = aa)
+  aa <- sub(pattern = "GCA", replacement = "Ala", x = aa)
+  aa <- sub(pattern = "GCG", replacement = "Ala", x = aa)
+  aa <- sub(pattern = "UAU", replacement = "Tyr", x = aa)
+  aa <- sub(pattern = "UAC", replacement = "Tyr", x = aa)
+  aa <- sub(pattern = "UAA", replacement = "STOP", x = aa)
+  aa <- sub(pattern = "UAG", replacement = "STOP", x = aa)
+  aa <- sub(pattern = "CAU", replacement = "His", x = aa)
+  aa <- sub(pattern = "CAC", replacement = "His", x = aa)
+  aa <- sub(pattern = "CAA", replacement = "Gln", x = aa)
+  aa <- sub(pattern = "CAG", replacement = "Gln", x = aa)
+  aa <- sub(pattern = "AAU", replacement = "Asn", x = aa)
+  aa <- sub(pattern = "AAC", replacement = "Asn", x = aa)
+  aa <- sub(pattern = "AAA", replacement = "Lys", x = aa)
+  aa <- sub(pattern = "AAG", replacement = "Lys", x = aa)
+  aa <- sub(pattern = "GAU", replacement = "Asp", x = aa)
+  aa <- sub(pattern = "GAC", replacement = "Asp", x = aa)
+  aa <- sub(pattern = "GAA", replacement = "Glu", x = aa)
+  aa <- sub(pattern = "GAG", replacement = "Glu", x = aa)
+  aa <- sub(pattern = "UGU", replacement = "Cys", x = aa)
+  aa <- sub(pattern = "UGC", replacement = "Cys", x = aa)
+  aa <- sub(pattern = "UGA", replacement = "STOP", x = aa)
+  aa <- sub(pattern = "UGG", replacement = "Trp", x = aa)
+  aa <- sub(pattern = "CGU", replacement = "Arg", x = aa)
+  aa <- sub(pattern = "CGC", replacement = "Arg", x = aa)
+  aa <- sub(pattern = "CGA", replacement = "Arg", x = aa)
+  aa <- sub(pattern = "CGG", replacement = "Arg", x = aa)
+  aa <- sub(pattern = "AGU", replacement = "Ser", x = aa)
+  aa <- sub(pattern = "AGC", replacement = "Ser", x = aa)
+  aa <- sub(pattern = "AGA", replacement = "Arg", x = aa)
+  aa <- sub(pattern = "AGG", replacement = "Arg", x = aa)
+  aa <- sub(pattern = "GGU", replacement = "Gly", x = aa)
+  aa <- sub(pattern = "GGC", replacement = "Gly", x = aa)
+  aa <- sub(pattern = "GGA", replacement = "Gly", x = aa)
+  aa <- sub(pattern = "GGG", replacement = "Gly", x = aa)
+  
+  # Organizacion de los datos en tripletas para mostrar equivalencias:
+  DNA1 <- matrix(data = DNA, ncol = 3, byrow = TRUE)
+  DNA2 <- matrix(data = NA, ncol = 1, nrow = nrow(DNA1))
+  for(i in 1:nrow(DNA1)) DNA2[i,] <- paste0(DNA1[i,], collapse = "")
+  
+  # Impresion de resultados:
+  data.frame(DNA = DNA2, RNA = RNA_final, aa)
+}
+
+```
+
+### Aspectos a resaltar del código
+
+- El codigo usa condicionales anidados del tipo `if ... else` para los criterios de seleccion del proceso de transcripcion de <span style='color:red; font-size:110%; font-weight:600'>DNA</span> a <span style='color:blue; font-size:110%; font-weight:600'>RNA</span>.
+
+- El codigo usa el comando `sub` para reemplazar las tripletas de bases nitrogenadas del <span style='color:blue; font-size:110%; font-weight:600'>RNA</span> por las siglas del aminoacido correspondiente.
+
+
+### Cargando la función
+
+Para cargar la función a su espacio de trabajo use el siguiente código:
+
+
+```{r, eval=FALSE}
+# Cargando la funcion:
+source('https://raw.githubusercontent.com/davidquirozlopez/funciones/main/codgen.R')
+```
+
+
+
+## Ejemplos de uso
+
+A continuación, se muestran algunos ejemplos usando el comando 'codgen':
+
+
+### Ejemplo 1:
+
+Definimos un vector compuesto por letras mayusculas correspondientes a las bases nitrogenadas del <span style='color:red; font-size:110%; font-weight:600'>DNA</span> y usamos el comando sobre este vector:
+
+```{r, echo=T}
+
+x <- sample(c("A", "C", "T", "G"), size = 27, replace = T)
+codgen(x)
+
+```
+
+
+### Ejemplo 2:
+
+Si intentamos usar el comando `codgen` sobre un vector que no cumple con la longitud adecuada:
+
+```{r, echo=T, error=T}
+
+y <- sample(c("A", "C", "T", "G"), size = 25, replace = T)
+codgen(y)
+
+```
+
+
+### Ejemplo 3:
+
+Si intentamos usar el comando `codgen` sobre un vector que contiene elementos inadecuados:
+
+```{r, echo=T, error=T}
+
+z <- c("A", "e", "T", "G", "U", "T", 8)
+codgen(z)
+
+```
